@@ -19,7 +19,13 @@ fn o fm o ... o f1
 Lacking the flexible syntax of functional languges (like Haskell), we must do it with a function like this:
 
 ```
-    pipeline(arg, f1, ..., fn);
+pipeline(arg, f1, ..., fn) == fn(...f1(arg))
+```
+
+Or with a monad-style à la Haskell:
+
+```
+f1 arg >>= f2 >>= ... >>= fn
 ```
 
 Note that you don't have to specify any type for the template function *pipeline*.
