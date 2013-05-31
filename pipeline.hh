@@ -1,6 +1,9 @@
 #ifndef PIPELINE_HH_
 # define PIPELINE_HH_
 
+# include <utility>
+# include <type_traits>
+
 namespace
 {
     //
@@ -29,7 +32,7 @@ namespace
 // returns the result of fn(...f2(f1(arg)))
 //
 template <typename In>
-In pipeline(In&& a)
+auto pipeline(In&& a) -> decltype (std::forward<In>(a))
 {
     return std::forward<In>(a);
 }
@@ -37,7 +40,7 @@ In pipeline(In&& a)
 template <
     typename In,
     typename Function>
-auto pipeline(In&& a, Function f) -> decltype (f(std::forward<In>(a)))
+auto pipeline(In&& a, Function&& f) -> decltype (f(std::forward<In>(a)))
 {
     return f(std::forward<In>(a));
 }
@@ -46,9 +49,11 @@ template <
     typename In,
     typename Function,
     typename ...Args>
-auto pipeline(In&& a, Function f, Args... args) -> typename result_of<In, Function, Args...>::type
+auto pipeline(In&& a, Function&& f, Args&&... args) -> typename result_of<In, Function, Args...>::type
 {
-    return pipeline<decltype (f(std::forward<In>(a)))>(f(std::forward<In>(a)), args...);
+    return pipeline<decltype (f(std::forward<In>(a)))>(
+            f(std::forward<In>(a)), // Input argument
+            std::forward<Args>(args)...);
 }
 
 #endif /* !PIPELINE_HH_ */
